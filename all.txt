@@ -1,0 +1,280 @@
+//view
+//create
+<?php 
+    include '../model/dbconn.php';
+    $show_act = getUser();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Create Account</h1>
+    <form action="../controller/add_act.php" method="POST">
+        <input type="text" name="fname" placeholder="First Name">
+        <br>
+        <input type="text" name="lname" placeholder="Last Name">
+        <br>
+        <input type="email" name="email" placeholder="Email">
+        <br>
+        <input type="password" name="password" placeholder="Password">
+        <br>
+        <select name="type">
+            <option value="">Acount Type</option>
+            <option value="admin">ADMIN</option>
+            <option value="user">USER</option>
+        </select>
+        <br>
+        <br>
+        <input type="submit" value="Submit" name="addperson">
+    </form>
+    <br>
+    <br>
+    <form action="../controller/search_act.php">
+        <input type="text" name="search" placeholder="Search">
+        <input type="submit" name="btnsearch" value="go!">
+    </form>
+    <br>
+    <br>
+    <table>
+        <thead>
+            <td>
+                ID
+            </td>
+            <td>
+                First Name
+            </td>
+            <td>
+                Last Name
+            </td>
+            <td>
+                Email 
+            </td>
+            <td>
+                Type
+            </td>
+            <td>
+                Status
+            </td>
+        </thead>
+        <tbody>
+        <?php foreach($show_act as $s) 
+                {?>
+                    <tr>
+                        <td><?php echo $s['act_id'] ?></td>
+                        <td><?php echo $s['act_fname'] ?></td>
+                        <td><?php echo $s['act_lname'] ?></td>
+                        <td><?php echo $s['act_email'] ?></td>
+                        <td><?php echo $s['act_type'] ?></td>
+                        <td>
+                        <a href="update.php?id=<?php echo $s['act_id']?>">Update</a> 
+                        <a href="../controller/delete_act.php?id=<?php echo $s['act_id']?>">Delete</a>  
+                        </td>
+                    </tr> 
+                <?php } ?>
+        </tbody>
+    </table>
+</body>
+</html>
+//end
+
+//update
+<?php 
+    include '../model/dbconn.php';
+    $update=getact(array($_GET['id']));
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Create Account</h1>
+    <form action="../controller/update_act.php" method="POST">
+        <label for="idno">IDNO</label>
+        <input type="number" name="act_id" id="id" value="<?php echo $update['act_id']?>">
+        <br>
+        <label for="fname">First Name</label>
+        <input type="text" name="fname" placeholder="First Name" value="<?php echo $update['act_fname']?>">
+        <br>
+        <label for="lname">last Name</label>
+        <input type="text" name="lname" placeholder="Last Name" value="<?php echo $update['act_lname']?>">
+        <br>
+        <label for="email">Email</label>
+        <input type="email" name="email" placeholder="Email" value="<?php echo $update['act_email']?>">
+        <br>
+        <label for="password">Password</label>
+        <input type="password" name="password" placeholder="Password">
+        <br>
+        <select name="type">
+            <option value="">Acount Type</option>
+            <option value="admin">ADMIN</option>
+            <option value="user">USER</option>
+        </select>
+        <br>
+        <br>
+        <input type="submit" value="Update" name="updateperson">
+    </form>
+    <br>
+    <br>
+</body>
+</html>
+//end
+
+//model
+//dbconn
+<?php
+function dbconn()
+{
+    try
+    {
+            return new PDO("mysql:hostname=localhost;dbname=killtest","root","");              
+    }
+    catch(PDOException $e)
+    {
+        echo $e->getMessage();
+    }
+}// end dbconn()
+
+function destroy()
+{
+    return null;
+}// end of destroy
+
+function addrecord($data)
+{
+    $db=dbconn();
+    $sql="INSERT INTO account(act_fname,act_lname,act_email,act_password,act_type) VALUES(?,?,?,?,?) ";
+    $stmt=$db->prepare($sql);
+    $stmt->execute($data);
+    $db=destroy();
+}//end of addrecord
+
+function getUser()
+{
+    $db;
+    $rows;
+    try
+    {
+        $db=dbconn();
+        $sql="SELECT * FROM account";
+        $stmt=$db->prepare($sql);
+        $stmt->execute();
+        $rows=$stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch(PDOExeception $e)
+    {
+        echo $e->getMessage();
+    }
+    $db=null;
+    return $rows;
+}// end of getting data from account
+
+function update($data)
+{
+    $db=dbconn();
+    $sql="UPDATE account SET act_fname=?, act_lname=?, act_email=?, act_password=?, act_type=? WHERE act_id=?";
+    $stmt=$db->prepare($sql);
+    $stmt->execute($data);
+    $db=null;
+}// end of update
+
+function deleteact($data)
+{
+    $db=dbconn();
+    $sql="DELETE FROM account WHERE act_id=?";
+    $stmt=$db->prepare($sql);
+    $stmt->execute($data);
+    $db=null;
+}//end of delete
+
+function search($data)
+{
+    $db=dbconn();
+    $sql="SEARCH "
+}
+
+function getact($data)
+{
+    $db=dbconn();
+    $sql="SELECT * FROM account WHERE act_id=?";
+    $stmt=$db->prepare($sql);
+    $stmt->execute($data);
+    $row=$stmt->fetch(PDO::FETCH_ASSOC);
+    return $row;
+}
+?>
+//end
+
+//controller
+//update
+<?php 
+include '../model/dbconn.php';
+
+if(isset($_POST['updateperson']))
+{
+    $flag=false;
+    $fname=htmlentities($_POST['fname']);
+    $lname=htmlentities($_POST['lname']);
+    $email=htmlentities($_POST['email']);
+    $password=htmlentities($_POST['password']);
+    $type=htmlentities($_POST['type']);
+    $id=htmlentities($_POST['act_id']);
+    
+    $data=array($fname,$lname,$email,$password,$type,$id);
+
+    $ok=update($data);
+    if($ok)
+    {
+        header("location:../view/create.php?Updated");
+    }
+    else
+    {
+        header("location:../view/create.php?update_FAILED");
+    }
+}
+ ?>
+ //end
+
+//delete
+<?php 
+include '../model/dbconn.php';
+$ok=deleteact(array($_GET['id']));
+if($ok)
+{
+    header("location:../view/create.php?Deleted");
+}
+else
+{
+    header("location:../view/create.php?DELTE_FAILED");
+}
+?>
+//end
+
+//add
+<?php
+include '../model/dbconn.php';
+
+if(isset($_POST['addperson']))
+{
+    $fname = htmlentities($_POST['fname']);
+    $lname = htmlentities($_POST['lname']);
+    $email = htmlentities($_POST['email']);
+    $password = htmlentities($_POST['password']);
+    $type = htmlentities($_POST['type']);
+    $data=array($fname,$lname,$email,$password,$type);
+    addrecord($data);
+
+    header("location:../view/create.php?Succes_Register");
+}
+?>
+
+
